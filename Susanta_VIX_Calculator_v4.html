@@ -1,0 +1,130 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Susanta VIX Calculator</title>
+<style>
+body{font-family:Arial,sans-serif;max-width:550px;margin:auto;padding:15px;background:#f2f2f2}
+.card{background:#fff;padding:18px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.15);margin-bottom:15px}
+h2{text-align:center}
+select,input,button{width:100%;padding:12px;margin:8px 0;font-size:16px;box-sizing:border-box}
+button{background:#0d6efd;color:#fff;border:none;border-radius:6px}
+.result{font-size:18px;font-weight:bold;line-height:1.8}
+.rules{font-size:14px;line-height:1.6}
+</style>
+</head>
+<body>
+
+<h2>Susanta VIX Calculator</h2>
+
+<div class="card">
+
+<label>Calculator</label>
+<select id="calc" onchange="updateCalc()">
+<option value="friday">Friday Calculator</option>
+<option value="monday">Monday Calculator</option>
+<option value="weekly">Weekly Calculator</option>
+<option value="expiry">Expiry Day Calculator</option>
+</select>
+
+<input type="number" id="nifty" placeholder="Nifty Value">
+<input type="number" id="vix" placeholder="India VIX">
+
+<label>Divisor</label>
+<select id="divisor"></select>
+
+<button onclick="calculate()">Calculate</button>
+
+<div class="result" id="result"></div>
+
+</div>
+
+<div class="card">
+<h3>Rules & Guide</h3>
+<div class="rules" id="rules"></div>
+</div>
+
+<script>
+
+const divisors={
+friday:[8,10,11],
+monday:[10,12,13.5],
+weekly:[5.5,6,6.5,7.28],
+expiry:[8,10,12]
+};
+
+const rules={
+friday:`
+<b>Friday Calculator</b><br>
+VIX &lt; 12 → Use 8 (Aggressive)<br>
+VIX 12-15 → Use 10 (Moderate)<br>
+VIX &gt; 15 → Use 11 (Conservative)<br>
+11 = Benchmark (√121.6)
+`,
+monday:`
+<b>Monday Calculator</b><br>
+VIX &lt; 12 → Use 10 (Aggressive)<br>
+VIX 12-15 → Use 12 (Moderate)<br>
+VIX &gt; 15 → Use 13.5 (Conservative)<br>
+13.5 = Benchmark (√182.5)
+`,
+weekly:`
+<b>Weekly Calculator</b><br>
+Use Nifty and VIX between 3:00 PM and 3:25 PM.<br>
+VIX &lt; 13 → Use 6.5<br>
+VIX 13-16 → Use 6.0<br>
+VIX &gt; 16 → Use 5.5<br>
+7.28 = Benchmark (√53)
+`,
+expiry:`
+<b>Expiry Day Calculator</b><br>
+VIX &lt; 13 → Use 10<br>
+VIX 13-16 → Use 10 or 12<br>
+VIX &gt; 16 → Use 8<br>
+19.1 → Research / Comparison
+`
+};
+
+function updateCalc(){
+ let c=document.getElementById("calc").value;
+ let d=document.getElementById("divisor");
+ d.innerHTML="";
+ divisors[c].forEach(function(v){
+   let o=document.createElement("option");
+   o.text=v;
+   o.value=v;
+   d.appendChild(o);
+ });
+ document.getElementById("rules").innerHTML=rules[c];
+}
+
+function calculate(){
+ let n=parseFloat(document.getElementById("nifty").value);
+ let v=parseFloat(document.getElementById("vix").value);
+ let d=parseFloat(document.getElementById("divisor").value);
+
+ if(isNaN(n)||isNaN(v)){
+   alert("Please enter all values.");
+   return;
+ }
+
+ let move=v/d;
+ let points=n*(move/100);
+ let upper=n+points;
+ let lower=n-points;
+
+ document.getElementById("result").innerHTML=
+ "Move % : "+move.toFixed(2)+"%<br>"+
+ "Move Points : "+points.toFixed(0)+"<br>"+
+ "Upper Range : "+upper.toFixed(0)+"<br>"+
+ "Lower Range : "+lower.toFixed(0);
+}
+
+updateCalc();
+
+</script>
+
+</body>
+</html>
